@@ -1,8 +1,6 @@
 package com.yoshinoda.spring.usage.config;
 
 import com.yoshinoda.spring.usage.security.HeaderAccessDeniedHandler;
-import com.yoshinoda.spring.usage.security.HeaderAuthenticationFailureHandler;
-import com.yoshinoda.spring.usage.security.HeaderAuthenticationSuccessHandler;
 import com.yoshinoda.spring.usage.security.service.HeaderUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -45,6 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessHandler(logoutSuccessHandler())
                 .addLogoutHandler(new CookieClearingLogoutHandler())
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
                 .and()
             .csrf().disable()
             .exceptionHandling()
@@ -69,15 +67,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return new HeaderAuthenticationSuccessHandler();
+        return new SavedRequestAwareAuthenticationSuccessHandler();
     }
 
     AuthenticationFailureHandler authenticationFailureHandler() {
-        return new HeaderAuthenticationFailureHandler();
+        return new SimpleUrlAuthenticationFailureHandler();
     }
 
     LogoutSuccessHandler logoutSuccessHandler() {
-        return new HttpStatusReturningLogoutSuccessHandler();
+        return new SimpleUrlLogoutSuccessHandler();
     }
 
 //    RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter() throws Exception {

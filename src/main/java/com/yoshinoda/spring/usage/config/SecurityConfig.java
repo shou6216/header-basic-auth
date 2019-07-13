@@ -2,6 +2,8 @@ package com.yoshinoda.spring.usage.config;
 
 import com.yoshinoda.spring.usage.security.HeaderAccessDeniedHandler;
 import com.yoshinoda.spring.usage.security.HeaderAuthenticationEntryPoint;
+import com.yoshinoda.spring.usage.security.HeaderAuthenticationFailureHandler;
+import com.yoshinoda.spring.usage.security.HeaderAuthenticationSuccessHandler;
 import com.yoshinoda.spring.usage.security.service.HeaderUserDetailsService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -11,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
@@ -26,6 +30,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .formLogin()
                 .loginPage("/login").permitAll()
                 .loginProcessingUrl("/authentication")
+                        .usernameParameter("userId")
+                        .passwordParameter("pwd")
+                .successHandler(authenticationSuccessHandler())
+                .failureHandler(authenticationFailureHandler())
                 .and()
             .csrf().disable()
             .exceptionHandling()
@@ -47,6 +55,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     AccessDeniedHandler accessDeniedHandler() {
         return new HeaderAccessDeniedHandler();
+    }
+
+    AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new HeaderAuthenticationSuccessHandler();
+    }
+
+    AuthenticationFailureHandler authenticationFailureHandler() {
+        return new HeaderAuthenticationFailureHandler();
     }
 
     RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter() throws Exception {

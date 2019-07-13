@@ -16,6 +16,7 @@ public class HeaderAuthenticationFailureHandler implements AuthenticationFailure
                                         HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
         System.out.println("HeaderAuthenticationFailureHandler onAuthenticationFailure url=" + request.getRequestURL());
+        System.out.println(exception);
         response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
     }
 }

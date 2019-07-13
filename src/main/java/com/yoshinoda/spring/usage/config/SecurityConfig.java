@@ -5,16 +5,23 @@ import com.yoshinoda.spring.usage.security.HeaderAuthenticationEntryPoint;
 import com.yoshinoda.spring.usage.security.HeaderAuthenticationFailureHandler;
 import com.yoshinoda.spring.usage.security.HeaderAuthenticationSuccessHandler;
 import com.yoshinoda.spring.usage.security.service.HeaderUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
@@ -26,7 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .anyRequest().authenticated().and()
+                .anyRequest().authenticated()
+                .and()
             .formLogin()
                 .loginPage("/login").permitAll()
                 .loginProcessingUrl("/authentication")
@@ -34,6 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .passwordParameter("pwd")
                 .successHandler(authenticationSuccessHandler())
                 .failureHandler(authenticationFailureHandler())
+                .and()
+            .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessHandler(logoutSuccessHandler())
+                .addLogoutHandler(new CookieClearingLogoutHandler())
                 .and()
             .csrf().disable()
             .exceptionHandling()
@@ -65,6 +78,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new HeaderAuthenticationFailureHandler();
     }
 
+    LogoutSuccessHandler logoutSuccessHandler() {
+        return new HttpStatusReturningLogoutSuccessHandler();
+    }
+
     RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter() throws Exception {
         RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
         //filter.setContinueFilterChainOnUnsuccessfulAuthentication(true);
@@ -81,9 +98,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(preAuthenticationProvider());
     }
 
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth,
+                                HeaderUserDetailsService userDetailsService,
+                                PasswordEncoder passwordEncoder) throws Exception {
+
+        auth.eraseCredentials(true)
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder);
+
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     PreAuthenticatedAuthenticationProvider preAuthenticationProvider() {
         PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-        provider.setPreAuthenticatedUserDetailsService(new HeaderUserDetailsService());
+        //provider.setPreAuthenticatedUserDetailsService(new HeaderUserDetailsService());
         return provider;
     }
 }

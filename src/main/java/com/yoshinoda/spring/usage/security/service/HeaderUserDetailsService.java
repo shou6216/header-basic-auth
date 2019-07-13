@@ -1,14 +1,18 @@
 package com.yoshinoda.spring.usage.security.service;
 
-import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
-public class HeaderUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+@Service
+public class HeaderUserDetailsService implements UserDetailsService {
+
     @Override
-    public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
-        System.out.println("loadUserDetails called.");
-        return null;
+    public UserDetails loadUserByUsername(final String userId) {
+        System.out.println("HeaderUserDetailsService loadUserByUsername userId=" + userId);
+        // emailでデータベースからユーザーエンティティを検索する
+        return new User(userId, "", AuthorityUtils.createAuthorityList("ROLE_USER"));
     }
 }

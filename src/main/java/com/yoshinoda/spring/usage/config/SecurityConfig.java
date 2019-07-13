@@ -30,8 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
-                .loginPage("/login").permitAll()
-                .loginProcessingUrl("/authenticate").permitAll()
+                .loginProcessingUrl("/login").permitAll()
                         .usernameParameter("userId")
                         .passwordParameter("pwd")
                 .successHandler(authenticationSuccessHandler())
@@ -71,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     AuthenticationFailureHandler authenticationFailureHandler() {
-        return new SimpleUrlAuthenticationFailureHandler();
+        return new SimpleUrlAuthenticationFailureHandler("/login?error");
     }
 
     LogoutSuccessHandler logoutSuccessHandler() {

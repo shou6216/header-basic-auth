@@ -13,4 +13,10 @@ public class HomeController {
         System.out.println("HomeController index");
         return "home/index";
     }
+
+    @GetMapping("hoge1")
+    public String hoge1() {
+        System.out.println("HomeController hoge1");
+        return "home/hoge1";
+    }
 }

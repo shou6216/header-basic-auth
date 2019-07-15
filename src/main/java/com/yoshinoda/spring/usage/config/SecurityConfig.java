@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.*;
-import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
@@ -39,9 +38,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessHandler(logoutSuccessHandler())
-                .addLogoutHandler(new CookieClearingLogoutHandler())
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
                 .and()
             .csrf().disable()
             .exceptionHandling()
@@ -66,7 +62,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return new SavedRequestAwareAuthenticationSuccessHandler();
+        //TODO 認証失敗した場合の挙動。エラー画面に飛ぶ
+        return new SimpleUrlAuthenticationSuccessHandler();
     }
 
     AuthenticationFailureHandler authenticationFailureHandler() {

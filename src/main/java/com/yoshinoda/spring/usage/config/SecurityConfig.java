@@ -2,6 +2,7 @@ package com.yoshinoda.spring.usage.config;
 
 import com.yoshinoda.spring.usage.security.HeaderAccessDeniedHandler;
 import com.yoshinoda.spring.usage.security.HeaderAuthenticationSuccessHandler;
+import com.yoshinoda.spring.usage.security.TokenFilter;
 import com.yoshinoda.spring.usage.security.service.HeaderUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,12 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.web.filter.GenericFilterBean;
 
 @Configuration
 @EnableWebSecurity
@@ -44,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessHandler(logoutSuccessHandler())
                 .and()
             .csrf().disable()
+            .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint())
                 .accessDeniedHandler(accessDeniedHandler())
@@ -78,17 +78,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new SimpleUrlLogoutSuccessHandler();
     }
 
-//    RequestHeaderAuthenticationFilter requestHeaderAuthenticationFilter() throws Exception {
-//        RequestHeaderAuthenticationFilter filter = new RequestHeaderAuthenticationFilter();
-//        //filter.setContinueFilterChainOnUnsuccessfulAuthentication(true);
-//        //filter.setCredentialsRequestHeader("hoge");
-//        filter.setPrincipalRequestHeader("Authentication");
-//        //filter.setExceptionIfHeaderMissing(false);
-//        filter.setAuthenticationManager(authenticationManager());
-//        //filter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/login"));
-//        return filter;
-//    }
-//
+    GenericFilterBean tokenFilter() throws Exception {
+        return new TokenFilter();
+    }
+
 //    @Override
 //    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.authenticationProvider(preAuthenticationProvider());

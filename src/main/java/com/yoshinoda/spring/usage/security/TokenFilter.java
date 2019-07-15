@@ -1,23 +1,25 @@
 package com.yoshinoda.spring.usage.security;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class TokenFilter extends GenericFilterBean {
+public class TokenFilter extends RequestHeaderAuthenticationFilter {
 
-    @Override
+    public TokenFilter() {
+        super.setContinueFilterChainOnUnsuccessfulAuthentication(true);
+    }
+
+   @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         System.out.println("doFilter");
         String token = resolveToken(request);
@@ -37,7 +39,6 @@ public class TokenFilter extends GenericFilterBean {
         } catch (Exception e) {
             System.out.println("verify token error");
             SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
         filterChain.doFilter(request, response);
     }

@@ -1,6 +1,7 @@
 package com.yoshinoda.spring.usage.config;
 
 import com.yoshinoda.spring.usage.security.HeaderAccessDeniedHandler;
+import com.yoshinoda.spring.usage.security.HeaderAuthenticationSuccessHandler;
 import com.yoshinoda.spring.usage.security.service.HeaderUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.*;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
@@ -63,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     AuthenticationSuccessHandler authenticationSuccessHandler() {
         //TODO 認証失敗した場合の挙動。エラー画面に飛ぶ
-        return new SimpleUrlAuthenticationSuccessHandler();
+        return new HeaderAuthenticationSuccessHandler();
     }
 
     AuthenticationFailureHandler authenticationFailureHandler() {
